@@ -11,13 +11,18 @@ public class JwtTokenUtil {
         return Jwts.parser().setSigningKey(key).parseClaimsJws(token).getBody();
     }
 
-    public static String getUserName(String token, String key){
-        return extractClaims(token, key).get("userName").toString();
+    public static String getUserName(String token, String secretKey) {
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token)
+                .getBody()
+                .get("userName", String.class);
     }
 
     public static boolean isExpired(String token, String secretKey){
-        Date expireDate = extractClaims(token, secretKey).getExpiration();
-        return expireDate.before(new Date());
+        // expired가 지금보다 전에 됐으면 true
+        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token)
+                .getBody()
+                .getExpiration()
+                .before(new Date());
     }
 
     public static String createToken(String username, String Key, long expireTimeMs) {
